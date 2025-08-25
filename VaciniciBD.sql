@@ -122,6 +122,14 @@ INSERT INTO historico_vacinacao (paciente_id, funcionario_id, vacina_id, dose, d
 (1, 4, 1, '2ª Dose', '2022-04-18', 'COV22E', '2024-04-18', 1, 'Esquema completo'),
 (1, 5, 6, 'Dose Única', '1993-11-05', 'HEPA93F', '2025-11-05', 3, NULL);
 
+INSERT INTO historico_vacinacao (paciente_id, funcionario_id, vacina_id, dose, data_aplicacao, lote, validade, local_id, observacoes) VALUES
+(2, 4, 5, 'Dose Única', '1992-08-25', 'BCG92A', NULL, 1, 'Aplicação ao nascer'),
+(2, 4, 3, 'Dose Única', '2010-03-15', 'FA10B', '2025-03-15', 2, NULL),
+(2, 5, 2, 'Dose Anual', '2024-04-22', 'FLU24C', '2024-12-31', 2, 'Campanha 2024'),
+(2, 4, 1, '2ª Dose', '2022-04-18', 'COV22E', '2024-04-18', 1, 'Esquema completo');
+
+
+
 -- Dados de teste - Agendamentos
 INSERT INTO agendamentos (paciente_id, vacina_id, local_id, data_agendamento, status)
 VALUES (2, 1, 1, '2025-09-01T09:00:00', 'Agendado'),
@@ -129,3 +137,7 @@ VALUES (2, 1, 1, '2025-09-01T09:00:00', 'Agendado'),
        (4, 3, 3, '2025-09-03T14:00:00', 'Agendado');
 
 GO
+
+
+SELECT * FROM usuarios;
+SELECT * FROM agendamentos;
