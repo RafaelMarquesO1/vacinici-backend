@@ -75,6 +75,20 @@ CREATE TABLE historico_vacinacao (
   FOREIGN KEY (local_id) REFERENCES locais_vacinacao(id)
 );
 
+-- Tabela de Agendamentos
+CREATE TABLE agendamentos (
+  id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  paciente_id BIGINT NOT NULL,
+  vacina_id BIGINT NOT NULL,
+  local_id BIGINT NOT NULL,
+  data_agendamento DATETIME2 NOT NULL,
+  status NVARCHAR(50) NOT NULL DEFAULT 'Agendado',
+  data_criacao DATETIME2 DEFAULT GETDATE(),
+  FOREIGN KEY (paciente_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (vacina_id) REFERENCES vacinas(id),
+  FOREIGN KEY (local_id) REFERENCES locais_vacinacao(id)
+);
+
 -- Dados de teste - Usuários
 INSERT INTO usuarios (nome_completo, email, telefone, cpf, data_nascimento, genero, tipo_usuario, cargo, senha) VALUES
 ('Administrador Sistema', 'admin@vacinici.com', '11999999999', '000.000.000-00', '1990-01-01', 'Masculino', 'Funcionario', 'Administrador', 'admin123456'),
@@ -107,5 +121,11 @@ INSERT INTO historico_vacinacao (paciente_id, funcionario_id, vacina_id, dose, d
 (1, 4, 1, '1ª Dose', '2022-01-18', 'COV22D', '2024-01-18', 1, NULL),
 (1, 4, 1, '2ª Dose', '2022-04-18', 'COV22E', '2024-04-18', 1, 'Esquema completo'),
 (1, 5, 6, 'Dose Única', '1993-11-05', 'HEPA93F', '2025-11-05', 3, NULL);
+
+-- Dados de teste - Agendamentos
+INSERT INTO agendamentos (paciente_id, vacina_id, local_id, data_agendamento, status)
+VALUES (2, 1, 1, '2025-09-01T09:00:00', 'Agendado'),
+       (3, 2, 2, '2025-09-02T10:30:00', 'Agendado'),
+       (4, 3, 3, '2025-09-03T14:00:00', 'Agendado');
 
 GO
