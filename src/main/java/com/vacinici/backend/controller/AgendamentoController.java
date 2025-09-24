@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -62,6 +63,62 @@ public class AgendamentoController {
         }
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Map<String, Object>> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> statusData) {
+        try {
+            Optional<Agendamento> agendamentoOpt = agendamentoRepository.findById(id);
+            if (agendamentoOpt.isEmpty()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Agendamento não encontrado");
+                return ResponseEntity.notFound().build();
+            }
+            
+            Agendamento agendamento = agendamentoOpt.get();
+            agendamento.setStatus(statusData.get("status"));
+            
+            // Se o status for "Cancelado", salvar o motivo
+            if ("Cancelado".equals(statusData.get("status")) && statusData.containsKey("motivoCancelamento")) {
+                agendamento.setMotivoCancelamento(statusData.get("motivoCancelamento"));
+            }
+            
+            Agendamento saved = agendamentoRepository.save(agendamento);
+            
+            Map<String, Object> response = mapToResponse(saved);
+            response.put("success", true);
+            response.put("message", "Status atualizado com sucesso");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erro ao atualizar status: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> deleteAgendamento(@PathVariable Long id) {
+        try {
+            if (!agendamentoRepository.existsById(id)) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Agendamento não encontrado");
+                return ResponseEntity.notFound().build();
+            }
+            
+            agendamentoRepository.deleteById(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Agendamento cancelado com sucesso");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erro ao cancelar agendamento: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
     private Map<String, Object> mapToResponse(Agendamento agendamento) {
         Map<String, Object> response = new HashMap<>();
         response.put("id", agendamento.getId());
@@ -71,6 +128,7 @@ public class AgendamentoController {
         response.put("dataAgendamento", agendamento.getDataAgendamento());
         response.put("status", agendamento.getStatus());
         response.put("dataCriacao", agendamento.getDataCriacao());
+        response.put("motivoCancelamento", agendamento.getMotivoCancelamento());
         
         // Buscar nomes relacionados
         usuarioRepository.findById(agendamento.getPacienteId()).ifPresent(u -> 

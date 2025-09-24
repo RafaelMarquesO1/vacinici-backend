@@ -28,6 +28,9 @@ public class Agendamento {
     @Column(name = "data_criacao")
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
+    @Column(name = "motivo_cancelamento")
+    private String motivoCancelamento;
+
     // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -49,4 +52,7 @@ public class Agendamento {
 
     public LocalDateTime getDataCriacao() { return dataCriacao; }
     public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
+
+    public String getMotivoCancelamento() { return motivoCancelamento; }
+    public void setMotivoCancelamento(String motivoCancelamento) { this.motivoCancelamento = motivoCancelamento; }
 }
