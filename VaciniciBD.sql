@@ -89,6 +89,16 @@ CREATE TABLE agendamentos (
   FOREIGN KEY (local_id) REFERENCES locais_vacinacao(id)
 );
 
+-- Tabela de Horários Disponíveis
+CREATE TABLE horarios_disponiveis (
+  id BIGINT IDENTITY(1,1) PRIMARY KEY,
+  local_id BIGINT NOT NULL,
+  data DATE NOT NULL,
+  hora NVARCHAR(5) NOT NULL,
+  disponivel BIT DEFAULT 1,
+  FOREIGN KEY (local_id) REFERENCES locais_vacinacao(id)
+);
+
 -- Dados de teste - Usuários
 INSERT INTO usuarios (nome_completo, email, telefone, cpf, data_nascimento, genero, tipo_usuario, cargo, senha) VALUES
 ('Administrador Sistema', 'admin@vacinici.com', '11999999999', '000.000.000-00', '1990-01-01', 'Masculino', 'Funcionario', 'Administrador', 'admin123456'),
@@ -138,6 +148,27 @@ VALUES (2, 1, 1, '2025-09-01T09:00:00', 'Agendado'),
 
 GO
 
+ALTER TABLE agendamentos 
+ADD motivo_cancelamento NVARCHAR(255);
+
+-- Comentário da coluna
+EXEC sp_addextendedproperty 
+    @name = N'MS_Description', 
+    @value = N'Motivo do cancelamento do agendamento', 
+    @level0type = N'SCHEMA', @level0name = N'dbo', 
+    @level1type = N'TABLE', @level1name = N'agendamentos', 
+    @level2type = N'COLUMN', @level2name = N'motivo_cancelamento';
+
+-- Dados de teste - Horários Disponíveis
+INSERT INTO horarios_disponiveis (local_id, data, hora, disponivel) VALUES
+(1, '2025-10-07', '09:00', 1),
+(1, '2025-10-07', '10:00', 1),
+(1, '2025-10-07', '11:00', 1),
+(2, '2025-10-07', '14:00', 1),
+(2, '2025-10-07', '15:00', 1),
+(3, '2025-10-07', '08:30', 1),
+(3, '2025-10-07', '09:30', 1);
 
 SELECT * FROM usuarios;
 SELECT * FROM agendamentos;
+SELECT * FROM horarios_disponiveis;

@@ -1,12 +1,15 @@
 package com.vacinici.backend.controller;
 
 import com.vacinici.backend.entity.LocalVacinacao;
+import com.vacinici.backend.entity.HorarioDisponivel;
 import com.vacinici.backend.service.LocalVacinacaoService;
+import com.vacinici.backend.repository.HorarioDisponivelRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +20,9 @@ public class LocalVacinacaoController {
 
     @Autowired
     private LocalVacinacaoService localService;
+
+    @Autowired
+    private HorarioDisponivelRepository horarioDisponivelRepository;
 
     @GetMapping
     public ResponseEntity<List<LocalVacinacao>> getAllLocais() {
@@ -79,5 +85,17 @@ public class LocalVacinacaoController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping("/{id}/horarios-disponiveis")
+    public ResponseEntity<List<HashMap<String, Object>>> getHorariosDisponiveis(@PathVariable Long id) {
+        List<HorarioDisponivel> horarios = horarioDisponivelRepository.findByLocalIdAndDisponivelTrue(id);
+        List<HashMap<String, Object>> response = horarios.stream().map(h -> {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("data", h.getData().toString());
+            map.put("hora", h.getHora());
+            return map;
+        }).toList();
+        return ResponseEntity.ok(response);
     }
 }
