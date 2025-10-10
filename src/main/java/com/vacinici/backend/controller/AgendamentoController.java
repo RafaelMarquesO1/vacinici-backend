@@ -8,9 +8,12 @@ import com.vacinici.backend.repository.AgendamentoRepository;
 import com.vacinici.backend.repository.UsuarioRepository;
 import com.vacinici.backend.repository.VacinaRepository;
 import com.vacinici.backend.repository.LocalVacinacaoRepository;
+import com.vacinici.backend.entity.HistoricoVacinacao;
+import com.vacinici.backend.repository.HistoricoVacinacaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +37,9 @@ public class AgendamentoController {
     
     @Autowired
     private LocalVacinacaoRepository localRepository;
+    
+    @Autowired
+    private HistoricoVacinacaoRepository historicoRepository;
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getAllAgendamentos() {
@@ -92,6 +98,60 @@ public class AgendamentoController {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
             error.put("message", "Erro ao atualizar status: " + e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @PostMapping("/{id}/aplicar")
+    public ResponseEntity<Map<String, Object>> aplicarVacina(@PathVariable Long id, @RequestBody Map<String, Object> dadosAplicacao) {
+        try {
+            Optional<Agendamento> agendamentoOpt = agendamentoRepository.findById(id);
+            if (agendamentoOpt.isEmpty()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Agendamento não encontrado");
+                return ResponseEntity.notFound().build();
+            }
+            
+            Agendamento agendamento = agendamentoOpt.get();
+            
+            // Criar histórico de vacinação
+            HistoricoVacinacao historico = new HistoricoVacinacao();
+            
+            Usuario paciente = usuarioRepository.findById(agendamento.getPacienteId()).orElseThrow();
+            Usuario funcionario = usuarioRepository.findById(Long.valueOf(dadosAplicacao.get("funcionarioId").toString())).orElseThrow();
+            Vacina vacina = vacinaRepository.findById(agendamento.getVacinaId()).orElseThrow();
+            LocalVacinacao local = localRepository.findById(agendamento.getLocalId()).orElse(null);
+            
+            historico.setPaciente(paciente);
+            historico.setFuncionario(funcionario);
+            historico.setVacina(vacina);
+            historico.setLocal(local);
+            historico.setDose(dadosAplicacao.get("dose").toString());
+            historico.setDataAplicacao(LocalDate.now());
+            historico.setLote(dadosAplicacao.get("lote").toString());
+            
+            if (dadosAplicacao.containsKey("validade")) {
+                historico.setValidade(LocalDate.parse(dadosAplicacao.get("validade").toString()));
+            }
+            if (dadosAplicacao.containsKey("observacoes")) {
+                historico.setObservacoes(dadosAplicacao.get("observacoes").toString());
+            }
+            
+            historicoRepository.save(historico);
+            
+            // Atualizar status do agendamento
+            agendamento.setStatus("Aplicado");
+            agendamentoRepository.save(agendamento);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Vacina aplicada com sucesso");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Erro ao aplicar vacina: " + e.getMessage());
             return ResponseEntity.badRequest().body(error);
         }
     }
