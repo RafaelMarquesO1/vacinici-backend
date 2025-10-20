@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -16,4 +17,6 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     
     @Query("SELECT a FROM Agendamento a ORDER BY a.dataAgendamento DESC")
     List<Agendamento> findAllOrderByDataAgendamentoDesc();
+    
+    boolean existsByLocalIdAndDataAgendamento(Long localId, LocalDateTime dataAgendamento);
 }

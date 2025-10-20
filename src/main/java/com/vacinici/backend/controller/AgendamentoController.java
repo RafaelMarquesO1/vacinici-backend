@@ -14,11 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -153,6 +156,47 @@ public class AgendamentoController {
             error.put("success", false);
             error.put("message", "Erro ao aplicar vacina: " + e.getMessage());
             return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @GetMapping("/horarios-disponiveis/{localId}")
+    public ResponseEntity<List<Map<String, Object>>> getHorariosDisponiveis(@PathVariable Long localId) {
+        try {
+            List<Map<String, Object>> horarios = new ArrayList<>();
+            LocalDate hoje = LocalDate.now();
+            
+            // Gerar horários para os próximos 14 dias úteis
+            for (int i = 1; i <= 14; i++) {
+                LocalDate data = hoje.plusDays(i);
+                
+                // Pular fins de semana
+                if (data.getDayOfWeek() == java.time.DayOfWeek.SATURDAY || 
+                    data.getDayOfWeek() == java.time.DayOfWeek.SUNDAY) {
+                    continue;
+                }
+                
+                // Horários de 8h às 17h, exceto 12h
+                for (int hora = 8; hora <= 17; hora++) {
+                    if (hora == 12) continue; // Pular almoço
+                    
+                    LocalDateTime dataHora = data.atTime(hora, 0);
+                    
+                    // Verificar se já existe agendamento neste horário
+                    boolean ocupado = agendamentoRepository.existsByLocalIdAndDataAgendamento(localId, dataHora);
+                    
+                    if (!ocupado) {
+                        Map<String, Object> horario = new HashMap<>();
+                        horario.put("data", data.toString());
+                        horario.put("hora", String.format("%02d:00", hora));
+                        horario.put("disponivel", true);
+                        horarios.add(horario);
+                    }
+                }
+            }
+            
+            return ResponseEntity.ok(horarios);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
