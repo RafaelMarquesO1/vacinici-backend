@@ -80,6 +80,7 @@ public class HistoricoVacinacaoController {
             
             // Configurar dados básicos
             historico.setDose(historicoData.get("dose").toString());
+            // Corrigir timezone para evitar erro de data
             historico.setDataAplicacao(LocalDate.parse(historicoData.get("dataAplicacao").toString()));
             historico.setLote(historicoData.get("lote").toString());
             

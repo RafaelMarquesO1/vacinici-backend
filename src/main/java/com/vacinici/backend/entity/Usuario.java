@@ -47,6 +47,9 @@ public class Usuario {
     @Column(length = 50)
     private String cargo;
 
+    @Column(name = "nivel_permissao")
+    private Integer nivelPermissao = 1;
+
     @Size(max = 255, message = "URL da foto deve ter no máximo 255 caracteres")
     @Column(name = "foto_perfil", length = 255)
     private String fotoPerfil;
@@ -102,6 +105,9 @@ public class Usuario {
 
     public String getCargo() { return cargo; }
     public void setCargo(String cargo) { this.cargo = cargo; }
+
+    public Integer getNivelPermissao() { return nivelPermissao; }
+    public void setNivelPermissao(Integer nivelPermissao) { this.nivelPermissao = nivelPermissao; }
 
     public String getFotoPerfil() { return fotoPerfil; }
     public void setFotoPerfil(String fotoPerfil) { this.fotoPerfil = fotoPerfil; }

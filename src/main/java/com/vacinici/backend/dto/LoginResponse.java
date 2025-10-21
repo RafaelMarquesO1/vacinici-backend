@@ -7,17 +7,19 @@ public class LoginResponse {
     private String nomeCompleto;
     private String tipoUsuario;
     private String cargo;
+    private Integer nivelPermissao;
 
     // Constructors
     public LoginResponse() {}
 
-    public LoginResponse(String token, Long id, String email, String nomeCompleto, String tipoUsuario, String cargo) {
+    public LoginResponse(String token, Long id, String email, String nomeCompleto, String tipoUsuario, String cargo, Integer nivelPermissao) {
         this.token = token;
         this.id = id;
         this.email = email;
         this.nomeCompleto = nomeCompleto;
         this.tipoUsuario = tipoUsuario;
         this.cargo = cargo;
+        this.nivelPermissao = nivelPermissao;
     }
 
     // Getters and Setters
@@ -38,4 +40,7 @@ public class LoginResponse {
 
     public String getCargo() { return cargo; }
     public void setCargo(String cargo) { this.cargo = cargo; }
+
+    public Integer getNivelPermissao() { return nivelPermissao; }
+    public void setNivelPermissao(Integer nivelPermissao) { this.nivelPermissao = nivelPermissao; }
 }

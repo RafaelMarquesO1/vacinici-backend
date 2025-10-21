@@ -58,6 +58,7 @@ public class UsuarioService {
                     usuario.setDataNascimento(usuarioAtualizado.getDataNascimento());
                     usuario.setGenero(usuarioAtualizado.getGenero());
                     usuario.setCargo(usuarioAtualizado.getCargo());
+                    usuario.setNivelPermissao(usuarioAtualizado.getNivelPermissao());
                     usuario.setFotoPerfil(usuarioAtualizado.getFotoPerfil());
                     
                     if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {

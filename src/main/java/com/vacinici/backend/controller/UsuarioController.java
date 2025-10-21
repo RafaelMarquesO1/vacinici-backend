@@ -48,6 +48,29 @@ public class UsuarioController {
         List<Usuario> funcionarios = usuarioService.findAllFuncionarios();
         return ResponseEntity.ok(funcionarios);
     }
+    
+    @GetMapping("/{id}/dados-publicos")
+    public ResponseEntity<Usuario> getDadosPublicos(@PathVariable Long id, @RequestParam(required = false) Integer nivelSolicitante) {
+        Optional<Usuario> usuarioOpt = usuarioService.findById(id);
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        
+        // Se o solicitante for enfermeiro (nível 3) ou menor, ocultar informações sigilosas
+        if (nivelSolicitante != null && nivelSolicitante <= 3 && "Paciente".equals(usuario.getTipoUsuario())) {
+            Usuario usuarioPublico = new Usuario();
+            usuarioPublico.setId(usuario.getId());
+            usuarioPublico.setNomeCompleto(usuario.getNomeCompleto());
+            usuarioPublico.setTipoUsuario(usuario.getTipoUsuario());
+            usuarioPublico.setFotoPerfil(usuario.getFotoPerfil());
+            // Não incluir CPF, email, telefone, data de nascimento para enfermeiros
+            return ResponseEntity.ok(usuarioPublico);
+        }
+        
+        return ResponseEntity.ok(usuario);
+    }
 
     @PostMapping
     public ResponseEntity<Usuario> createUsuario(@Valid @RequestBody Usuario usuario) {
@@ -57,6 +80,29 @@ public class UsuarioController {
             }
             if (usuarioService.existsByCpf(usuario.getCpf())) {
                 return ResponseEntity.badRequest().build();
+            }
+            
+            // Definir nível de permissão baseado no tipo e cargo
+            if ("Paciente".equals(usuario.getTipoUsuario())) {
+                usuario.setNivelPermissao(1);
+                usuario.setCargo(null);
+            } else if ("Funcionario".equals(usuario.getTipoUsuario())) {
+                switch (usuario.getCargo()) {
+                    case "Técnico em Enfermagem":
+                        usuario.setNivelPermissao(2);
+                        break;
+                    case "Enfermeiro":
+                        usuario.setNivelPermissao(3);
+                        break;
+                    case "Médico":
+                        usuario.setNivelPermissao(4);
+                        break;
+                    default:
+                        usuario.setNivelPermissao(2);
+                }
+            } else if ("Administrador".equals(usuario.getTipoUsuario())) {
+                usuario.setNivelPermissao(5);
+                usuario.setCargo("Administrador");
             }
             
             Usuario novoUsuario = usuarioService.save(usuario);

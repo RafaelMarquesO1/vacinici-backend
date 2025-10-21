@@ -71,7 +71,8 @@ public class AuthController {
                 usuario.getEmail(),
                 usuario.getNomeCompleto(),
                 usuario.getTipoUsuario(),
-                usuario.getCargo()
+                usuario.getCargo(),
+                usuario.getNivelPermissao()
             );
 
             return ResponseEntity.ok(loginResponse);

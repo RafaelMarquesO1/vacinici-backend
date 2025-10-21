@@ -131,7 +131,8 @@ public class AgendamentoController {
             historico.setVacina(vacina);
             historico.setLocal(local);
             historico.setDose(dadosAplicacao.get("dose").toString());
-            historico.setDataAplicacao(LocalDate.now());
+            // Corrigir timezone para evitar erro de data
+            historico.setDataAplicacao(LocalDate.now(java.time.ZoneId.of("America/Sao_Paulo")));
             historico.setLote(dadosAplicacao.get("lote").toString());
             
             if (dadosAplicacao.containsKey("validade")) {
@@ -143,13 +144,12 @@ public class AgendamentoController {
             
             historicoRepository.save(historico);
             
-            // Atualizar status do agendamento
-            agendamento.setStatus("Aplicado");
-            agendamentoRepository.save(agendamento);
+            // Apagar o agendamento após aplicar a vacina
+            agendamentoRepository.deleteById(id);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "Vacina aplicada com sucesso");
+            response.put("message", "Vacina aplicada com sucesso e agendamento removido");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
